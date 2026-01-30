@@ -14,7 +14,7 @@ const penguinImg = new Image();
 penguinImg.src = "assets/penguin.png";
 
 const bgImg = new Image();
-bgImg.src = "assets/arka-plan.jpg";
+bgImg.src = "assets/background.jpg";
 
 const buzImg = new Image();
 buzImg.src = "assets/buz.png";
