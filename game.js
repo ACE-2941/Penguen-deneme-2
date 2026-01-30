@@ -151,7 +151,7 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
     ctx.font = "bold 40px Arial";
-    ctx.fillText("GAME OVER", canvas.width / 2 - 120, canvas.height / 2);
+    ctx.fillText("HATA BAŞVERDI EKRANA BASIVER", canvas.width / 2 - 120, canvas.height / 2);
   }
 }
 
