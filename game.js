@@ -185,9 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
       ctx.font = "bold 28px Arial";
-      ctx.fillText("GAME OVER", 90, 300);
+      ctx.fillText("PENGUEN FINITO", 90, 300);
       ctx.font = "18px Arial";
-      ctx.fillText("Dokun / Bas → Tekrar", 85, 330);
+      ctx.fillText("HAYAT BITTI EKRANA BASIVER", 85, 330);
     }
   }
 
