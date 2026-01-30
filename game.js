@@ -3,13 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
 
-  // ---------------- CANVAS ----------------
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener("resize", resize);
+  // SABİT OYUN ALANI
+  canvas.width = 360;
+  canvas.height = 640;
 
   // ---------------- IMAGES ----------------
   const bgImg = new Image();
@@ -23,11 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------------- PLAYER ----------------
   const penguin = {
-    x: 100,
+    x: 180 - 32,
     y: 0,
     width: 64,
     height: 64,
-    speed: 6
+    speed: 5,
+
+    frameX: 0,
+    frameY: 0,
+    frameCount: 4,   // sprite sayısı
+    frameTimer: 0,
+    frameInterval: 6
   };
 
   let score = 0;
@@ -52,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "ArrowRight") moveRight = false;
   });
 
-  // MOBILE – BASILI TUTMA
+  // MOBILE
   canvas.addEventListener("touchstart", e => {
     e.preventDefault();
 
@@ -62,12 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const x = e.touches[0].clientX;
-    if (x < canvas.width / 2) moveLeft = true;
-    else moveRight = true;
-  }, { passive: false });
+    if (x < canvas.getBoundingClientRect().left + canvas.width / 2)
+      moveLeft = true;
+    else
+      moveRight = true;
 
-  canvas.addEventListener("touchmove", e => {
-    e.preventDefault();
   }, { passive: false });
 
   canvas.addEventListener("touchend", () => {
@@ -91,18 +92,37 @@ document.addEventListener("DOMContentLoaded", () => {
     score = 0;
     ices = [];
     iceTimer = 0;
-    penguin.x = canvas.width / 2 - penguin.width / 2;
+    penguin.x = 180 - 32;
   }
 
   function update() {
     if (gameOver) return;
 
-    if (moveLeft) penguin.x -= penguin.speed;
-    if (moveRight) penguin.x += penguin.speed;
+    let moving = false;
+
+    if (moveLeft) {
+      penguin.x -= penguin.speed;
+      moving = true;
+    }
+    if (moveRight) {
+      penguin.x += penguin.speed;
+      moving = true;
+    }
 
     if (penguin.x < 0) penguin.x = 0;
     if (penguin.x + penguin.width > canvas.width)
       penguin.x = canvas.width - penguin.width;
+
+    // 🔥 ANİMASYON
+    if (moving) {
+      penguin.frameTimer++;
+      if (penguin.frameTimer > penguin.frameInterval) {
+        penguin.frameX = (penguin.frameX + 1) % penguin.frameCount;
+        penguin.frameTimer = 0;
+      }
+    } else {
+      penguin.frameX = 0; // durunca sabit
+    }
 
     iceTimer++;
     if (iceTimer > 60) {
@@ -135,10 +155,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     penguin.y = canvas.height - penguin.height - 20;
 
-    // TEK PENGUEN (sprite kırpma)
+    // 🐧 ANİMASYONLU PENGUEN
     ctx.drawImage(
       penguinImg,
-      0, 0, 32, 32,
+      penguin.frameX * 32,
+      0,
+      32,
+      32,
       penguin.x,
       penguin.y,
       penguin.width,
@@ -150,28 +173,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     ctx.fillStyle = "white";
-    ctx.font = "bold 26px Arial";
-    ctx.shadowColor = "black";
-    ctx.shadowBlur = 4;
-    ctx.fillText("Puan: " + score, 20, 40);
-    ctx.shadowBlur = 0;
+    ctx.font = "bold 22px Arial";
+    ctx.fillText("Puan: " + score, 16, 30);
 
     if (gameOver) {
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "white";
-      ctx.font = "bold 36px Arial";
-      ctx.fillText(
-        "GAME OVER",
-        canvas.width / 2 - 110,
-        canvas.height / 2 - 20
-      );
-      ctx.font = "20px Arial";
-      ctx.fillText(
-        "Ekrana basarak tekrar başla",
-        canvas.width / 2 - 140,
-        canvas.height / 2 + 20
-      );
+      ctx.font = "bold 28px Arial";
+      ctx.fillText("GAME OVER", 90, 300);
+      ctx.font = "18px Arial";
+      ctx.fillText("Dokun / Bas → Tekrar", 85, 330);
     }
   }
 
