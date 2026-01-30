@@ -17,17 +17,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const iceImg = new Image();
   iceImg.src = "buz.png";
 
+  // ---------------- SPRITE INFO ----------------
+  const SPRITE_FRAME_WIDTH = 32;
+  const SPRITE_FRAME_HEIGHT = 32;
+  const SPRITE_FRAME_COUNT = 6; // penguin.png içinde GERÇEK kare sayısı
+
   // ---------------- PLAYER ----------------
   const penguin = {
-    x: 180 - 32,
+    x: canvas.width / 2 - 32,
     y: 0,
     width: 64,
     height: 64,
     speed: 5,
 
     frameX: 0,
-    frameY: 0,
-    frameCount: 4,   // sprite sayısı
     frameTimer: 0,
     frameInterval: 6
   };
@@ -63,11 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const x = e.touches[0].clientX;
-    if (x < canvas.getBoundingClientRect().left + canvas.width / 2)
-      moveLeft = true;
-    else
-      moveRight = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+
+    if (x < canvas.width / 2) moveLeft = true;
+    else moveRight = true;
 
   }, { passive: false });
 
@@ -92,7 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
     score = 0;
     ices = [];
     iceTimer = 0;
-    penguin.x = 180 - 32;
+    penguin.x = canvas.width / 2 - penguin.width / 2;
+    penguin.frameX = 0;
   }
 
   function update() {
@@ -113,15 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (penguin.x + penguin.width > canvas.width)
       penguin.x = canvas.width - penguin.width;
 
-    // 🔥 ANİMASYON
+    // 🐧 ANİMASYON
     if (moving) {
       penguin.frameTimer++;
-      if (penguin.frameTimer > penguin.frameInterval) {
-        penguin.frameX = (penguin.frameX + 1) % penguin.frameCount;
+      if (penguin.frameTimer >= penguin.frameInterval) {
+        penguin.frameX = (penguin.frameX + 1) % SPRITE_FRAME_COUNT;
         penguin.frameTimer = 0;
       }
     } else {
-      penguin.frameX = 0; // durunca sabit
+      penguin.frameX = 0;
     }
 
     iceTimer++;
@@ -155,13 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     penguin.y = canvas.height - penguin.height - 20;
 
-    // 🐧 ANİMASYONLU PENGUEN
+    // 🐧 TEK ve DOĞRU penguen
     ctx.drawImage(
       penguinImg,
-      penguin.frameX * 32,
+      penguin.frameX * SPRITE_FRAME_WIDTH,
       0,
-      32,
-      32,
+      SPRITE_FRAME_WIDTH,
+      SPRITE_FRAME_HEIGHT,
       penguin.x,
       penguin.y,
       penguin.width,
