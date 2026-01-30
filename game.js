@@ -1,10 +1,14 @@
-const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 360;
-canvas.height = 640;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-// ASSETLER
+// --- RESİMLER ---
 const bgImg = new Image();
 bgImg.src = "arka-plan.jpg";
 
@@ -14,46 +18,36 @@ penguinImg.src = "penguin.png";
 const iceImg = new Image();
 iceImg.src = "buz.png";
 
-// PUAN
-let score = 0;
-
-// PENGUEN
+// --- OYUNCU ---
 const penguin = {
-  x: canvas.width / 2 - 24,
-  y: canvas.height - 100,
+  x: 100,
+  y: 0,
   width: 48,
   height: 48,
   speed: 5
 };
 
-// BUZ ENGELİ
-const ice = {
-  x: Math.random() * (canvas.width - 40),
-  y: -80,
-  width: 40,
-  height: 80,
-  speed: 3
-};
+let score = 0;
 
-// KONTROLLER
+// --- KONTROLLER ---
 let moveLeft = false;
 let moveRight = false;
 
-// KLAVYE
-document.addEventListener("keydown", e => {
+// Klavye
+window.addEventListener("keydown", e => {
   if (e.key === "ArrowLeft") moveLeft = true;
   if (e.key === "ArrowRight") moveRight = true;
 });
 
-document.addEventListener("keyup", e => {
+window.addEventListener("keyup", e => {
   if (e.key === "ArrowLeft") moveLeft = false;
   if (e.key === "ArrowRight") moveRight = false;
 });
 
-// MOBİL DOKUNMA
+// Mobil – basılı tutma
 canvas.addEventListener("touchstart", e => {
   const x = e.touches[0].clientX;
-  if (x < window.innerWidth / 2) moveLeft = true;
+  if (x < canvas.width / 2) moveLeft = true;
   else moveRight = true;
 });
 
@@ -62,55 +56,47 @@ canvas.addEventListener("touchend", () => {
   moveRight = false;
 });
 
-// ÇARPIŞMA
-function isColliding(a, b) {
-  return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
-  );
-}
-
-// OYUN DÖNGÜSÜ
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // ARKA PLAN
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-
-  // PENGUEN HAREKET
+// --- OYUN DÖNGÜSÜ ---
+function update() {
   if (moveLeft) penguin.x -= penguin.speed;
   if (moveRight) penguin.x += penguin.speed;
 
-  // SINIRLAR (EN SOLA & SAĞA TAM GİDER)
+  // EKRAN DIŞINA ÇIKMASIN
   if (penguin.x < 0) penguin.x = 0;
   if (penguin.x + penguin.width > canvas.width)
     penguin.x = canvas.width - penguin.width;
 
-  // BUZ HAREKET
-  ice.y += ice.speed;
-  if (ice.y > canvas.height) {
-    ice.y = -80;
-    ice.x = Math.random() * (canvas.width - ice.width);
-    score++;
-    document.getElementById("score").innerText = "Puan: " + score;
-  }
-
-  // ÇARPIŞMA
-  if (isColliding(penguin, ice)) {
-    alert("Oyun Bitti! Puan: " + score);
-    location.reload();
-  }
-
-  // ÇİZİMLER
-  ctx.drawImage(penguinImg, penguin.x, penguin.y, penguin.width, penguin.height);
-  ctx.drawImage(iceImg, ice.x, ice.y, ice.width, ice.height);
-
-  requestAnimationFrame(gameLoop);
+  score += 0.05;
 }
 
-// BAŞLAT
+function draw() {
+  // Arka plan
+  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+  // Penguen YERDE
+  penguin.y = canvas.height - penguin.height - 20;
+  ctx.drawImage(
+    penguinImg,
+    penguin.x,
+    penguin.y,
+    penguin.width,
+    penguin.height
+  );
+
+  // Puan – SOL ÜST
+  ctx.fillStyle = "white";
+  ctx.font = "24px Arial";
+  ctx.fillText("Puan: " + Math.floor(score), 20, 40);
+}
+
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// RESİMLER YÜKLENİNCE BAŞLA
 bgImg.onload = () => {
-  gameLoop();
+  loop();
 };
