@@ -1,166 +1,187 @@
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+document.addEventListener("DOMContentLoaded", () => {
 
-// ---------------- CANVAS ----------------
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
 
-// ---------------- IMAGES ----------------
-const bgImg = new Image();
-bgImg.src = "arka-plan.jpg";
+  // ---------------- CANVAS ----------------
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
 
-const penguinImg = new Image();
-penguinImg.src = "penguin.png";
+  // ---------------- IMAGES ----------------
+  const bgImg = new Image();
+  bgImg.src = "arka-plan.jpg";
 
-const iceImg = new Image();
-iceImg.src = "buz.png";
+  const penguinImg = new Image();
+  penguinImg.src = "penguin.png";
 
-// ---------------- PLAYER ----------------
-const penguin = {
-  x: 100,
-  y: 0,
-  width: 64,
-  height: 64,
-  speed: 6
-};
+  const iceImg = new Image();
+  iceImg.src = "buz.png";
 
-let score = 0;
-let gameOver = false;
+  // ---------------- PLAYER ----------------
+  const penguin = {
+    x: 100,
+    y: 0,
+    width: 64,
+    height: 64,
+    speed: 6
+  };
 
-// ---------------- ICE ----------------
-const ices = [];
-let iceTimer = 0;
+  let score = 0;
+  let gameOver = false;
 
-// ---------------- CONTROLS ----------------
-let moveLeft = false;
-let moveRight = false;
+  // ---------------- ICE ----------------
+  let ices = [];
+  let iceTimer = 0;
 
-// PC
-window.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft") moveLeft = true;
-  if (e.key === "ArrowRight") moveRight = true;
-});
+  // ---------------- CONTROLS ----------------
+  let moveLeft = false;
+  let moveRight = false;
 
-window.addEventListener("keyup", e => {
-  if (e.key === "ArrowLeft") moveLeft = false;
-  if (e.key === "ArrowRight") moveRight = false;
-});
-
-// MOBILE (BASILI TUTMA)
-canvas.addEventListener("touchstart", e => {
-  e.preventDefault();
-  const x = e.touches[0].clientX;
-  if (x < canvas.width / 2) moveLeft = true;
-  else moveRight = true;
-}, { passive: false });
-
-canvas.addEventListener("touchend", () => {
-  moveLeft = false;
-  moveRight = false;
-});
-
-// ---------------- GAME LOGIC ----------------
-function spawnIce() {
-  ices.push({
-    x: Math.random() * (canvas.width - 40),
-    y: -60,
-    width: 40,
-    height: 80,
-    speed: 4
+  // PC
+  window.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") moveLeft = true;
+    if (e.key === "ArrowRight") moveRight = true;
   });
-}
 
-function update() {
-  if (gameOver) return;
+  window.addEventListener("keyup", e => {
+    if (e.key === "ArrowLeft") moveLeft = false;
+    if (e.key === "ArrowRight") moveRight = false;
+  });
 
-  // Player move
-  if (moveLeft) penguin.x -= penguin.speed;
-  if (moveRight) penguin.x += penguin.speed;
+  // MOBILE – BASILI TUTMA
+  canvas.addEventListener("touchstart", e => {
+    e.preventDefault();
 
-  // Bounds
-  if (penguin.x < 0) penguin.x = 0;
-  if (penguin.x + penguin.width > canvas.width)
-    penguin.x = canvas.width - penguin.width;
+    if (gameOver) {
+      resetGame();
+      return;
+    }
 
-  // Ice spawn
-  iceTimer++;
-  if (iceTimer > 60) {
-    spawnIce();
+    const x = e.touches[0].clientX;
+    if (x < canvas.width / 2) moveLeft = true;
+    else moveRight = true;
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", e => {
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchend", () => {
+    moveLeft = false;
+    moveRight = false;
+  });
+
+  // ---------------- GAME LOGIC ----------------
+  function spawnIce() {
+    ices.push({
+      x: Math.random() * (canvas.width - 40),
+      y: -80,
+      width: 40,
+      height: 80,
+      speed: 4
+    });
+  }
+
+  function resetGame() {
+    gameOver = false;
+    score = 0;
+    ices = [];
     iceTimer = 0;
+    penguin.x = canvas.width / 2 - penguin.width / 2;
   }
 
-  // Ice update
-  for (let i = ices.length - 1; i >= 0; i--) {
-    const ice = ices[i];
-    ice.y += ice.speed;
+  function update() {
+    if (gameOver) return;
 
-    // Collision
-    if (
-      ice.x < penguin.x + penguin.width &&
-      ice.x + ice.width > penguin.x &&
-      ice.y < penguin.y + penguin.height &&
-      ice.y + ice.height > penguin.y
-    ) {
-      gameOver = true;
+    if (moveLeft) penguin.x -= penguin.speed;
+    if (moveRight) penguin.x += penguin.speed;
+
+    if (penguin.x < 0) penguin.x = 0;
+    if (penguin.x + penguin.width > canvas.width)
+      penguin.x = canvas.width - penguin.width;
+
+    iceTimer++;
+    if (iceTimer > 60) {
+      spawnIce();
+      iceTimer = 0;
     }
 
-    // Remove
-    if (ice.y > canvas.height) {
-      ices.splice(i, 1);
-      score += 1;
+    for (let i = ices.length - 1; i >= 0; i--) {
+      const ice = ices[i];
+      ice.y += ice.speed;
+
+      if (
+        ice.x < penguin.x + penguin.width &&
+        ice.x + ice.width > penguin.x &&
+        ice.y < penguin.y + penguin.height &&
+        ice.y + ice.height > penguin.y
+      ) {
+        gameOver = true;
+      }
+
+      if (ice.y > canvas.height) {
+        ices.splice(i, 1);
+        score++;
+      }
     }
   }
-}
 
-function draw() {
-  ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  function draw() {
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-  // Penguin ground
-  penguin.y = canvas.height - penguin.height - 20;
+    penguin.y = canvas.height - penguin.height - 20;
 
-  // Penguin (sprite fix – tek kare)
-  ctx.drawImage(
-    penguinImg,
-    0, 0, 32, 32,
-    penguin.x,
-    penguin.y,
-    penguin.width,
-    penguin.height
-  );
+    // TEK PENGUEN (sprite kırpma)
+    ctx.drawImage(
+      penguinImg,
+      0, 0, 32, 32,
+      penguin.x,
+      penguin.y,
+      penguin.width,
+      penguin.height
+    );
 
-  // Ice
-  for (const ice of ices) {
-    ctx.drawImage(iceImg, ice.x, ice.y, ice.width, ice.height);
-  }
+    for (const ice of ices) {
+      ctx.drawImage(iceImg, ice.x, ice.y, ice.width, ice.height);
+    }
 
-  // Score
-  ctx.fillStyle = "white";
-  ctx.font = "bold 26px Arial";
-  ctx.shadowColor = "black";
-  ctx.shadowBlur = 4;
-  ctx.fillText("Puan: " + score, 20, 40);
-  ctx.shadowBlur = 0;
-
-  // Game Over
-  if (gameOver) {
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
-    ctx.font = "bold 40px Arial";
-    ctx.fillText("HATA BAŞVERDI EKRANA BASIVER", canvas.width / 2 - 120, canvas.height / 2);
+    ctx.font = "bold 26px Arial";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 4;
+    ctx.fillText("Puan: " + score, 20, 40);
+    ctx.shadowBlur = 0;
+
+    if (gameOver) {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.font = "bold 36px Arial";
+      ctx.fillText(
+        "GAME OVER",
+        canvas.width / 2 - 110,
+        canvas.height / 2 - 20
+      );
+      ctx.font = "20px Arial";
+      ctx.fillText(
+        "Ekrana basarak tekrar başla",
+        canvas.width / 2 - 140,
+        canvas.height / 2 + 20
+      );
+    }
   }
-}
 
-function loop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
 
-// ---------------- START ----------------
-bgImg.onload = () => loop();
+  bgImg.onload = () => loop();
+
+});
