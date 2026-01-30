@@ -6,7 +6,7 @@ canvas.height = 640;
 
 // ASSETLER
 const bgImg = new Image();
-bgImg.src = "background.jpg";
+bgImg.src = "arka-plan.jpg";
 
 const penguinImg = new Image();
 penguinImg.src = "penguin.png";
