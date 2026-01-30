@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.font = "bold 28px Arial";
       ctx.fillText("PENGUEN FINITO", 90, 300);
       ctx.font = "18px Arial";
-      ctx.fillText("HAYAT BITTI EKRANA BASIVER", 85, 330);
+      ctx.fillText("EKRANA BASIVER FINITO", 85, 330);
     }
   }
 
