@@ -28,11 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
     y: 0,
     width: 64,
     height: 64,
-    speed: 5,
+    speed: 10,
 
     frameX: 0,
     frameTimer: 0,
-    frameInterval: 6
+    frameInterval: 0
   };
 
   let score = 0;
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------------- ICE ----------------
   let ices = [];
-  let iceTimer = 0;
+  let iceTimer = 5;
 
   // ---------------- CONTROLS ----------------
   let moveLeft = false;
