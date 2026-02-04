@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- SPRITE INFO ----------------
   const SPRITE_FRAME_WIDTH = 32;
   const SPRITE_FRAME_HEIGHT = 32;
-  const SPRITE_FRAME_COUNT = 6; // penguin.png içinde GERÇEK kare sayısı
+  const SPRITE_FRAME_COUNT = 6; // penguin.png içinde gerçek kare sayısı
 
   // ---------------- PLAYER ----------------
   const penguin = {
